@@ -140,6 +140,14 @@
   }
   .draw-row .clear-btn:hover{border-color:var(--red);color:var(--red);}
   .draw-row .savehint{color:var(--amber);font-size:11px;font-weight:700;min-width:50px;}
+  .mirror-row{background:#101010;border-bottom:1px solid var(--border);padding:0 16px;}
+  .mirror-row summary{padding:8px 0;font-size:11px;color:var(--muted);cursor:pointer;list-style:none;}
+  .mirror-row summary::-webkit-details-marker{display:none;}
+  .mirror-row summary:before{content:"▸ ";}
+  .mirror-row[open] summary:before{content:"▾ ";}
+  .mirror-list{display:flex;flex-wrap:wrap;gap:10px;padding:4px 0 12px;}
+  .mirror-opt{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text);background:#000;border:1px solid var(--border);padding:4px 10px;border-radius:4px;cursor:pointer;}
+  .mirror-opt input{margin:0;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
   th{
     text-align:left;
@@ -1104,6 +1112,15 @@ function saveDraws(draws){
 }
 let draws = loadDraws();
 
+const MIRROR_KEY = 'ademicon_leao_espelhos';
+function loadMirrors(){
+  try{ return JSON.parse(localStorage.getItem(MIRROR_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveMirrors(m){
+  localStorage.setItem(MIRROR_KEY, JSON.stringify(m));
+}
+let mirrors = loadMirrors();
+
 function fmtDate(iso){
   if(!iso) return '—';
   const [y,m,d] = iso.split('-');
@@ -1166,6 +1183,20 @@ function render(){
     drawRow.innerHTML = inputsHtml;
     div.appendChild(drawRow);
 
+    const mirrorRow = document.createElement('details');
+    mirrorRow.className = 'mirror-row';
+    const outrosGrupos = sortedGroups.filter(g=>g!==grupo);
+    const meusEspelhos = mirrors[grupo] || [];
+    let mirrorHtml = '<summary>Espelhar resultado com outro(s) grupo(s) (mesma linha da Loteria Federal)'+(meusEspelhos.length?' — '+meusEspelhos.length+' selecionado(s)':'')+'</summary>';
+    mirrorHtml += '<div class="mirror-list">';
+    outrosGrupos.forEach(g=>{
+      const checked = meusEspelhos.includes(g) ? 'checked' : '';
+      mirrorHtml += '<label class="mirror-opt"><input type="checkbox" data-mirror-of="'+grupo+'" value="'+g+'" '+checked+'> '+g+'</label>';
+    });
+    mirrorHtml += '</div>';
+    mirrorRow.innerHTML = mirrorHtml;
+    div.appendChild(mirrorRow);
+
     const table = document.createElement('table');
     table.innerHTML = '<thead><tr><th>Cota</th><th>Consorciado</th><th>Status</th></tr></thead>';
     const tbody = document.createElement('tbody');
@@ -1217,10 +1248,17 @@ container.addEventListener('click', e=>{
     const gd = ['','','','',''];
     inputs.forEach(el=>{ gd[Number(el.dataset.idx)] = el.value.replace(/\D/g,''); });
     draws[grupo] = gd;
+
+    const mirrorChecks = document.querySelectorAll('input[data-mirror-of="'+grupo+'"]:checked');
+    const espelhados = [...mirrorChecks].map(el=>el.value);
+    mirrors[grupo] = espelhados;
+    saveMirrors(mirrors);
+    espelhados.forEach(g=>{ draws[g] = gd.slice(); });
+
     saveDraws(draws);
     render();
     const hint = document.querySelector('[data-savedmsg="'+grupo+'"]');
-    if(hint){ hint.textContent='Salvo ✓'; setTimeout(()=>{ if(hint) hint.textContent=''; }, 2500); }
+    if(hint){ hint.textContent='Salvo'+(espelhados.length?' (+'+espelhados.length+' espelho'+(espelhados.length>1?'s':'')+')':'')+' ✓'; setTimeout(()=>{ if(hint) hint.textContent=''; }, 3000); }
   }
   if(e.target.dataset.clear){
     const grupo = e.target.dataset.clear;
