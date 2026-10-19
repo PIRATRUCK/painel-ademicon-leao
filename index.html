@@ -250,14 +250,23 @@
 <footer>Gerado a partir da planilha "Análise Gerencial da Carteira" — uso interno Rampazzo / Piratruck Guerra.</footer>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+const FIREBASE_CONFIG = {
+  apiKey:"AIzaSyCjrbTh9_yovb2CRtsXNL6fuOEyXnpFvcY",
+  authDomain:"painel-veiculos-4a6f5.firebaseapp.com",
+  projectId:"painel-veiculos-4a6f5",
+  storageBucket:"painel-veiculos-4a6f5.firebasestorage.app",
+  messagingSenderId:"910089422875",
+  appId:"1:910089422875:web:fbca3bf5d3f2bdeea950be"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db = firebase.firestore();
 const AUTH_USER = 'cotasgrupoleao@gmail.com';
-const AUTH_PASS = 'ADEMICON2026@';
-const AUTH_KEY = 'ademicon_leao_auth';
 
-function checkAuth(){
-  return localStorage.getItem(AUTH_KEY) === 'ok';
-}
 function showApp(){
   document.getElementById('loginOverlay').hidden = true;
   document.getElementById('appRoot').hidden = false;
@@ -266,24 +275,34 @@ function showLogin(){
   document.getElementById('loginOverlay').hidden = false;
   document.getElementById('appRoot').hidden = true;
 }
-if(checkAuth()) showApp(); else showLogin();
 
-document.getElementById('loginForm').addEventListener('submit', ev=>{
+auth.onAuthStateChanged(user=>{
+  if(user){ showApp(); iniciaMesAtual(); }
+  else{ showLogin(); }
+});
+
+document.getElementById('loginForm').addEventListener('submit', async ev=>{
   ev.preventDefault();
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const senha = document.getElementById('loginSenha').value;
   const erro = document.getElementById('loginErro');
-  if(email === AUTH_USER && senha === AUTH_PASS){
-    localStorage.setItem(AUTH_KEY, 'ok');
-    erro.textContent = '';
-    showApp();
-  }else{
+  const btn = ev.target.querySelector('button[type=submit]');
+  if(email !== AUTH_USER){
     erro.textContent = 'E-mail ou senha incorretos.';
+    return;
   }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  try{
+    await auth.signInWithEmailAndPassword(email, senha);
+    erro.textContent = '';
+  }catch(e){
+    const m = {'auth/invalid-credential':'E-mail ou senha incorretos.','auth/wrong-password':'E-mail ou senha incorretos.','auth/user-not-found':'E-mail ou senha incorretos.','auth/too-many-requests':'Muitas tentativas — aguarde alguns minutos.','auth/network-request-failed':'Sem conexão com a internet.'};
+    erro.textContent = m[e.code] || ('Não foi possível entrar ('+(e.code||'erro')+').');
+  }
+  btn.disabled = false; btn.textContent = 'Entrar';
 });
 document.getElementById('btnSair').addEventListener('click', ()=>{
-  localStorage.removeItem(AUTH_KEY);
-  showLogin();
+  auth.signOut();
 });
 
 const DATA = [
@@ -1114,49 +1133,45 @@ const DATA = [
  }
 ];
 
-const STORAGE_KEY = 'ademicon_leao_sorteios';
 function currentMonthStr(){
   const d = new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 }
-function loadAllDraws(){
-  let raw = {};
-  try{ raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ raw = {}; }
-  // Migra formato antigo (sem mes): {grupo:[...]} -> {mes:{grupo:[...]}}
-  const vals = Object.values(raw);
-  const isLegacy = vals.length > 0 && Array.isArray(vals[0]);
-  if(isLegacy){
-    const migrated = {}; migrated[currentMonthStr()] = raw;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-    return migrated;
-  }
-  return raw;
-}
-function saveAllDraws(all){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-}
-let allDraws = loadAllDraws();
 let selectedMonth = currentMonthStr();
-if(!allDraws[selectedMonth]) allDraws[selectedMonth] = {};
-function getDraws(){ return allDraws[selectedMonth]; }
+let currentMonthData = {}; // {grupo:[5 strings]} do mes selecionado, vindo do Firestore
+let unsubMonth = null;
+let editingOverride = new Set(); // grupos que o usuario clicou "Editar" explicitamente
+let loadError = null;
 
-const MIRROR_KEY = 'ademicon_leao_espelhos';
+function escutaMes(mes){
+  if(unsubMonth) unsubMonth();
+  loadError = null;
+  unsubMonth = db.collection('ademicon_leao_sorteios').doc(mes).onSnapshot(
+    snap=>{
+      currentMonthData = (snap.exists && snap.data().resultados) || {};
+      loadError = null;
+      render();
+    },
+    err=>{
+      console.error(err);
+      loadError = err.message || String(err);
+      render();
+    }
+  );
+}
+function iniciaMesAtual(){
+  escutaMes(selectedMonth);
+}
+
+function getDraws(){ return currentMonthData; }
+
 // Classes informadas pelo Kayque (19/10/2026): grupos com a mesma quantidade de cotas, mesmo resultado de sorteio.
 const CLASSE_1 = ['000680','000690','000720','000740','000750','000830','000940','000950','001120'];
 const CLASSE_2 = ['000640','000710'];
 const DEFAULT_MIRRORS = {};
 CLASSE_1.forEach(g=>{ DEFAULT_MIRRORS[g] = CLASSE_1.filter(x=>x!==g); });
 CLASSE_2.forEach(g=>{ DEFAULT_MIRRORS[g] = CLASSE_2.filter(x=>x!==g); });
-
-function loadMirrors(){
-  let saved = {};
-  try{ saved = JSON.parse(localStorage.getItem(MIRROR_KEY)) || {}; }catch(e){ saved = {}; }
-  return Object.assign({}, DEFAULT_MIRRORS, saved);
-}
-function saveMirrors(m){
-  localStorage.setItem(MIRROR_KEY, JSON.stringify(m));
-}
-let mirrors = loadMirrors();
+const mirrors = DEFAULT_MIRRORS;
 
 function fmtDate(iso){
   if(!iso) return '—';
@@ -1189,6 +1204,15 @@ const container = document.getElementById('groups');
 
 function render(){
   container.innerHTML = '';
+
+  if(loadError){
+    const errDiv = document.createElement('div');
+    errDiv.className = 'help';
+    errDiv.style.borderLeftColor = 'var(--red)';
+    errDiv.innerHTML = '<b style="color:var(--red)">Erro ao carregar dados compartilhados:</b> '+loadError;
+    container.appendChild(errDiv);
+  }
+
   let totContempladas = 0, totProximas = 0, totCotas = 0;
 
   const sortedGroups = [...grouped.keys()].sort();
@@ -1197,6 +1221,8 @@ function render(){
     const rows = grouped.get(grupo).slice().sort((a,b)=>Number(a.cota)-Number(b.cota));
     const meta = groupMeta.get(grupo);
     const gd = getDraws()[grupo] || ['','','','',''];
+    const hasSaved = gd.some(v=>v);
+    const isLocked = hasSaved && !editingOverride.has(grupo);
 
     const div = document.createElement('div');
     div.className = 'group';
@@ -1211,28 +1237,30 @@ function render(){
     drawRow.className = 'draw-row';
     let inputsHtml = '<label>Loteria Federal:</label>';
     for(let i=0;i<5;i++){
-      inputsHtml += '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º">';
+      inputsHtml += '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º"'+(isLocked?' disabled':'')+'>';
     }
-    inputsHtml += '<span class="sep">1º = contempla · 2º a 5º = reserva</span>';
-    inputsHtml += '<button class="save-btn" data-save="'+grupo+'">Salvar</button>';
-    inputsHtml += '<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
+    if(isLocked){
+      inputsHtml += '<span class="sep">salvo — 1º contempla, 2º a 5º reserva</span>';
+      inputsHtml += '<button class="save-btn" data-edit="'+grupo+'">Editar</button>';
+    }else{
+      inputsHtml += '<span class="sep">1º = contempla · 2º a 5º = reserva</span>';
+      inputsHtml += '<button class="save-btn" data-save="'+grupo+'">Salvar</button>';
+      inputsHtml += '<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
+    }
     inputsHtml += '<span class="savehint" data-savedmsg="'+grupo+'"></span>';
     drawRow.innerHTML = inputsHtml;
     div.appendChild(drawRow);
 
-    const mirrorRow = document.createElement('details');
-    mirrorRow.className = 'mirror-row';
-    const outrosGrupos = sortedGroups.filter(g=>g!==grupo);
-    const meusEspelhos = mirrors[grupo] || [];
-    let mirrorHtml = '<summary>Espelhar resultado com outro(s) grupo(s) (mesma linha da Loteria Federal)'+(meusEspelhos.length?' — '+meusEspelhos.length+' selecionado(s)':'')+'</summary>';
-    mirrorHtml += '<div class="mirror-list">';
-    outrosGrupos.forEach(g=>{
-      const checked = meusEspelhos.includes(g) ? 'checked' : '';
-      mirrorHtml += '<label class="mirror-opt"><input type="checkbox" data-mirror-of="'+grupo+'" value="'+g+'" '+checked+'> '+g+'</label>';
-    });
-    mirrorHtml += '</div>';
-    mirrorRow.innerHTML = mirrorHtml;
-    div.appendChild(mirrorRow);
+    if(!isLocked){
+      const mirrorRow = document.createElement('details');
+      mirrorRow.className = 'mirror-row';
+      const outrosGrupos = sortedGroups.filter(g=>g!==grupo);
+      const meusEspelhos = mirrors[grupo] || [];
+      let mirrorHtml = '<summary>Espelha automaticamente com: '+(meusEspelhos.length?meusEspelhos.join(', '):'nenhum')+'</summary>';
+      mirrorHtml += '<div class="mirror-list" style="color:var(--muted);font-size:11px;">Classes fixas definidas pelo Kayque — fala comigo se precisar mudar.</div>';
+      mirrorRow.innerHTML = mirrorHtml;
+      div.appendChild(mirrorRow);
+    }
 
     const table = document.createElement('table');
     table.innerHTML = '<thead><tr><th>Cota</th><th>Consorciado</th><th>Status</th></tr></thead>';
@@ -1284,24 +1312,46 @@ container.addEventListener('click', e=>{
     const inputs = document.querySelectorAll('input[data-grupo="'+grupo+'"]');
     const gd = ['','','','',''];
     inputs.forEach(el=>{ gd[Number(el.dataset.idx)] = el.value.replace(/\D/g,''); });
-    const monthDraws = getDraws();
-    monthDraws[grupo] = gd;
 
-    const mirrorChecks = document.querySelectorAll('input[data-mirror-of="'+grupo+'"]:checked');
-    const espelhados = [...mirrorChecks].map(el=>el.value);
-    mirrors[grupo] = espelhados;
-    saveMirrors(mirrors);
-    espelhados.forEach(g=>{ monthDraws[g] = gd.slice(); });
+    const espelhados = mirrors[grupo] || [];
+    const updateObj = {}; updateObj[grupo] = gd;
+    espelhados.forEach(g=>{ updateObj[g] = gd.slice(); });
 
-    saveAllDraws(allDraws);
-    render();
+    // Atualiza local pra resposta imediata; o listener do Firestore confirma depois.
+    Object.keys(updateObj).forEach(g=>{ currentMonthData[g] = updateObj[g]; });
+    editingOverride.delete(grupo);
+
     const hint = document.querySelector('[data-savedmsg="'+grupo+'"]');
-    if(hint){ hint.textContent='Salvo'+(espelhados.length?' (+'+espelhados.length+' espelho'+(espelhados.length>1?'s':'')+')':'')+' ✓'; setTimeout(()=>{ if(hint) hint.textContent=''; }, 3000); }
+    if(hint) hint.textContent = 'Salvando…';
+
+    db.collection('ademicon_leao_sorteios').doc(selectedMonth).set(
+      { resultados: updateObj, atualizadoEm: new Date().toISOString() },
+      { merge: true }
+    ).then(()=>{
+      const h = document.querySelector('[data-savedmsg="'+grupo+'"]');
+      if(h){ h.textContent = 'Salvo'+(espelhados.length?' (+'+espelhados.length+' espelho'+(espelhados.length>1?'s':'')+')':'')+' ✓'; setTimeout(()=>{ if(h) h.textContent=''; }, 3000); }
+    }).catch(err=>{
+      console.error(err);
+      const h = document.querySelector('[data-savedmsg="'+grupo+'"]');
+      if(h) h.textContent = 'Erro ao salvar: '+(err.message||err);
+    });
+
+    render();
+  }
+  if(e.target.dataset.edit){
+    editingOverride.add(e.target.dataset.edit);
+    render();
   }
   if(e.target.dataset.clear){
     const grupo = e.target.dataset.clear;
-    delete getDraws()[grupo];
-    saveAllDraws(allDraws);
+    const vazio = ['','','','',''];
+    currentMonthData[grupo] = vazio;
+    editingOverride.add(grupo);
+    const updateObj = {}; updateObj[grupo] = vazio;
+    db.collection('ademicon_leao_sorteios').doc(selectedMonth).set(
+      { resultados: updateObj, atualizadoEm: new Date().toISOString() },
+      { merge: true }
+    ).catch(err=>console.error(err));
     render();
   }
 });
@@ -1323,10 +1373,9 @@ function addMonths(mesStr, delta){
 }
 function montaOpcoesMes(){
   const hoje = currentMonthStr();
-  const meses = new Set();
-  for(let i=-6;i<=6;i++) meses.add(addMonths(hoje, i));
-  Object.keys(allDraws).forEach(m=>meses.add(m));
-  return [...meses].sort();
+  const meses = [];
+  for(let i=-6;i<=6;i++) meses.push(addMonths(hoje, i));
+  return meses;
 }
 const mesInput = document.getElementById('mesSeletor');
 montaOpcoesMes().forEach(m=>{
@@ -1340,12 +1389,10 @@ atualizaMesHint();
 mesInput.addEventListener('change', ()=>{
   if(!mesInput.value) return;
   selectedMonth = mesInput.value;
-  if(!allDraws[selectedMonth]) allDraws[selectedMonth] = {};
+  editingOverride.clear();
   atualizaMesHint();
-  render();
+  escutaMes(selectedMonth);
 });
-
-render();
 </script>
 </body>
 </html>
