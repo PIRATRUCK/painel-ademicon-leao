@@ -1,308 +1,1153 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel Ademicon — Grupo Leão</title>
 <style>
   :root{
-    --bg:#0a0a0a; --bg2:#141414; --card:#1a1a1a;
-    --red:#d1162b; --amber:#e8a33d;
-    --text:#f2f2f2; --muted:#9a9a9a; --border:#2b2b2b;
+    --bg:#0a0a0a;
+    --bg2:#141414;
+    --card:#1a1a1a;
+    --red:#d1162b;
+    --red-dark:#8c0f1e;
+    --amber:#e8a33d;
+    --text:#f2f2f2;
+    --muted:#9a9a9a;
+    --border:#2b2b2b;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;}
-  header{background:linear-gradient(135deg,#1a0000,#000);border-bottom:3px solid var(--red);padding:24px 20px;text-align:center;position:relative;}
-  header h1{margin:0;font-size:26px;letter-spacing:2px;text-transform:uppercase;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI',Arial,sans-serif;
+  }
+  header{
+    background:linear-gradient(135deg,#1a0000,#000);
+    border-bottom:3px solid var(--red);
+    padding:24px 20px;
+    text-align:center;
+  }
+  header h1{
+    margin:0;
+    font-size:26px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text);
+  }
   header h1 span{color:var(--red);}
-  header p{margin:6px 0 0;color:var(--muted);font-size:13px;}
-  .userbar{position:absolute;top:14px;right:18px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:10px;}
-  .userbar button{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;}
-  .userbar button:hover{border-color:var(--red);color:var(--red);}
+  header p{
+    margin:6px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
   .wrap{max-width:1100px;margin:0 auto;padding:20px;}
-  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-  .stat{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:6px;padding:14px;text-align:center;}
+  .summary{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .stat{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-top:3px solid var(--red);
+    border-radius:6px;
+    padding:14px;
+    text-align:center;
+  }
   .stat .num{font-size:28px;font-weight:700;}
   .stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
   .stat.alert .num{color:var(--red);}
   .stat.warn .num{color:var(--amber);}
-  .help{background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:4px;padding:12px 16px;font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5;}
+  .help{
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-left:4px solid var(--red);
+    border-radius:4px;
+    padding:12px 16px;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:24px;
+    line-height:1.5;
+  }
   .help b{color:var(--text);}
-  .group{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:18px;overflow:hidden;}
-  .group-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;background:var(--bg2);padding:14px 16px;border-bottom:1px solid var(--border);}
+  .group{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    margin-bottom:18px;
+    overflow:hidden;
+  }
+  .group-head{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    background:var(--bg2);
+    padding:14px 16px;
+    border-bottom:1px solid var(--border);
+  }
   .group-head .title{font-size:16px;font-weight:700;}
   .group-head .title .grupo-num{color:var(--red);}
   .group-head .meta{font-size:12px;color:var(--muted);}
-  .draw-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 16px;background:#101010;border-bottom:1px solid var(--border);}
+  .draw-row{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    padding:12px 16px;
+    background:#101010;
+    border-bottom:1px solid var(--border);
+  }
   .draw-row label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-  .draw-row input{width:72px;background:#000;border:1px solid var(--border);color:var(--text);padding:7px 8px;border-radius:4px;font-size:14px;text-align:center;}
-  .draw-row input.ref{border-color:var(--red);}
+  .draw-row input{
+    width:72px;
+    background:#000;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:7px 8px;
+    border-radius:4px;
+    font-size:14px;
+    text-align:center;
+  }
   .draw-row input:focus{outline:none;border-color:var(--red);}
-  .draw-row .sep{color:var(--muted);font-size:11px;margin-left:4px;}
-  .draw-row .clear-btn{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:4px;font-size:12px;cursor:pointer;}
+  .draw-row .sep{color:var(--muted);font-size:11px;margin-left:8px;}
+  .draw-row .clear-btn{
+    margin-left:auto;
+    background:none;
+    border:1px solid var(--border);
+    color:var(--muted);
+    padding:6px 12px;
+    border-radius:4px;
+    font-size:12px;
+    cursor:pointer;
+  }
   .draw-row .clear-btn:hover{border-color:var(--red);color:var(--red);}
-  .draw-row .savehint{font-size:11px;color:var(--muted);}
   table{width:100%;border-collapse:collapse;font-size:13px;}
-  th{text-align:left;padding:8px 16px;background:#101010;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+  th{
+    text-align:left;
+    padding:8px 16px;
+    background:#101010;
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    font-weight:600;
+  }
   td{padding:9px 16px;border-top:1px solid var(--border);}
   tr.contemplada{background:rgba(209,22,43,0.18);}
   tr.contemplada td:first-child{border-left:3px solid var(--red);}
   tr.proxima{background:rgba(232,163,61,0.10);}
   tr.proxima td:first-child{border-left:3px solid var(--amber);}
-  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;}
+  .badge{
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+  }
   .badge.contemplada{background:var(--red);color:#fff;}
   .badge.proxima{background:var(--amber);color:#1a1200;}
   .badge.normal{background:#2b2b2b;color:var(--muted);}
   .cota-num{font-weight:700;font-family:monospace;font-size:14px;}
   footer{text-align:center;padding:20px;color:var(--muted);font-size:11px;}
-  #loginOverlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;}
-  #loginOverlay[hidden]{display:none!important;}
-  .login-box{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:8px;padding:28px;width:100%;max-width:340px;}
-  .login-box h2{margin:0 0 18px;font-size:18px;text-transform:uppercase;letter-spacing:1px;}
-  .login-box .f{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
-  .login-box label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-  .login-box input{background:#000;border:1px solid var(--border);color:var(--text);padding:9px 10px;border-radius:4px;font-size:14px;}
-  .login-box input:focus{outline:none;border-color:var(--red);}
-  .login-box button{width:100%;background:var(--red);color:#fff;border:0;padding:10px;border-radius:4px;font-size:14px;font-weight:700;text-transform:uppercase;cursor:pointer;margin-top:6px;}
-  .login-box button:disabled{opacity:.6;cursor:default;}
-  .login-box .err{color:var(--red);font-size:12px;min-height:16px;margin-top:8px;}
-  #appLoading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;z-index:90;}
-  #appLoading[hidden]{display:none!important;}
+  @media print{
+    .draw-row input{border:1px solid #888;}
+  }
 </style>
 </head>
 <body>
+<header>
+  <h1>Painel <span>Ademicon</span> — Grupo Leão</h1>
+  <p>Carteira de cotas (Felipe de Souza Leão Rodrigues / Leão e Rodrigues Agropecuária) — Rampazzo Intermediação</p>
+</header>
 
-<div id="appLoading">Carregando…</div>
-
-<div id="loginOverlay" hidden>
-  <div class="login-box">
-    <h2>Painel <span style="color:var(--red)">Ademicon</span></h2>
-    <form id="loginForm">
-      <div class="f"><label for="loginEmail">E-mail</label><input id="loginEmail" type="email" autocomplete="username" required></div>
-      <div class="f"><label for="loginSenha">Senha</label><input id="loginSenha" type="password" autocomplete="current-password" required></div>
-      <button type="submit" id="btnEntrar">Entrar</button>
-      <div class="err" id="loginErro"></div>
-    </form>
-  </div>
-</div>
-
-<div id="appRoot" hidden>
-  <header>
-    <div class="userbar"><span id="userChip"></span><button id="btnSair" type="button">Sair</button></div>
-    <h1>Painel <span>Ademicon</span> — Grupo Leão</h1>
-    <p>Carteira de cotas (Felipe de Souza Leão Rodrigues / Leão e Rodrigues Agropecuária) — Rampazzo Intermediação</p>
-  </header>
-
-  <div class="wrap">
-    <div class="summary">
-      <div class="stat"><div class="num" id="totGrupos">0</div><div class="label">Grupos</div></div>
-      <div class="stat"><div class="num" id="totCotas">0</div><div class="label">Cotas ativas</div></div>
-      <div class="stat alert"><div class="num" id="totContempladas">0</div><div class="label">Contempladas</div></div>
-      <div class="stat warn"><div class="num" id="totProximas">0</div><div class="label">Próximas (±150)</div></div>
-    </div>
-
-    <div class="help">
-      <b>Como usar:</b> em cada grupo, digite os 4 números sorteados na assembleia. Só o
-      <b style="color:var(--red)">1º número</b> contempla (match exato) — o painel marca
-      <b style="color:var(--red)">CONTEMPLADA</b> quando uma cota bate com ele, e
-      <b style="color:var(--amber)">PRÓXIMA</b> quando a cota está a até 150 números de distância dele.
-      Os números 2º, 3º e 4º ficam só como reserva (não contemplam, apenas registrados).
-      Os números ficam salvos na nuvem — qualquer dispositivo logado vê o mesmo painel.
-    </div>
-
-    <div id="groups"></div>
+<div class="wrap">
+  <div class="summary">
+    <div class="stat"><div class="num" id="totGrupos">0</div><div class="label">Grupos</div></div>
+    <div class="stat"><div class="num" id="totCotas">0</div><div class="label">Cotas ativas</div></div>
+    <div class="stat alert"><div class="num" id="totContempladas">0</div><div class="label">Contempladas</div></div>
+    <div class="stat warn"><div class="num" id="totProximas">0</div><div class="label">Próximas (±150)</div></div>
   </div>
 
-  <footer>Gerado a partir da planilha "Análise Gerencial da Carteira" — uso interno Rampazzo / Piratruck Guerra.</footer>
+  <div class="help">
+    <b>Como usar:</b> em cada grupo, digite os 4 números sorteados na assembleia (1º ao 4º). Só o
+    <b style="color:var(--red)">1º número</b> contempla (match exato) — o painel marca
+    <b style="color:var(--red)">CONTEMPLADA</b> quando uma cota bate com ele, e
+    <b style="color:var(--amber)">PRÓXIMA</b> quando a cota está a até 150 números de distância dele.
+    Os números 2º, 3º e 4º ficam só como reserva (não contemplam, apenas registrados).
+    Os números digitados ficam salvos automaticamente neste navegador, mês a mês.
+  </div>
+
+  <div id="groups"></div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<footer>Gerado a partir da planilha "Análise Gerencial da Carteira" — uso interno Rampazzo / Piratruck Guerra.</footer>
+
 <script>
-const FIREBASE_CONFIG={
-  apiKey:"AIzaSyCjrbTh9_yovb2CRtsXNL6fuOEyXnpFvcY",
-  authDomain:"painel-veiculos-4a6f5.firebaseapp.com",
-  projectId:"painel-veiculos-4a6f5",
-  storageBucket:"painel-veiculos-4a6f5.firebasestorage.app",
-  messagingSenderId:"910089422875",
-  appId:"1:910089422875:web:fbca3bf5d3f2bdeea950be"
-};
-firebase.initializeApp(FIREBASE_CONFIG);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const DATA = [
+ {
+  "grupo": "000640",
+  "cota": "600",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001382",
+  "valor": "90.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 90,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000640",
+  "cota": "1133",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001382",
+  "valor": "90.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 90,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000640",
+  "cota": "1500",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001382",
+  "valor": "90.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 90,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000640",
+  "cota": "1938",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001387",
+  "valor": "180.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 90,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000640",
+  "cota": "1984",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001382",
+  "valor": "90.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 90,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000680",
+  "cota": "766",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001429",
+  "valor": "260.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 73,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000680",
+  "cota": "2266",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001429",
+  "valor": "260.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 73,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000690",
+  "cota": "2019",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001436",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 73,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000690",
+  "cota": "2231",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001436",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 73,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000710",
+  "cota": "46",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001458",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 71,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000710",
+  "cota": "212",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001458",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 71,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000710",
+  "cota": "229",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001458",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 71,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000710",
+  "cota": "299",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001458",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 71,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000710",
+  "cota": "304",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001458",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 71,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "12",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "94",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "272",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "499",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "666",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "1226",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "1704",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000720",
+  "cota": "2480",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001479",
+  "valor": "320.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 68,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "103",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "123",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "195",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "354",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "423",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "2668",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "2784",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "2798",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "2843",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "3002",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000740",
+  "cota": "3169",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001490",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 62,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "29",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "42",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "56",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "135",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "174",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "605",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "665",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "1209",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "1500",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000750",
+  "cota": "1912",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001495",
+  "valor": "150.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 61,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000830",
+  "cota": "79",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001547",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 46,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000830",
+  "cota": "356",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001547",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 46,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000830",
+  "cota": "588",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001547",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 46,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000830",
+  "cota": "1508",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001547",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 46,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000830",
+  "cota": "2404",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001547",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 46,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "29",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "31",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "268",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "277",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "336",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "351",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "592",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "608",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "967",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000921",
+  "cota": "3788",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001601",
+  "valor": "100.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 36,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000940",
+  "cota": "1110",
+  "consorciado": "FELIPE DE SOUZA LEAO RODRIGUES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001610",
+  "valor": "500.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "127",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "797",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "1064",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2585",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2736",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2739",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2763",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2887",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2903",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2964",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2987",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2991",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "000950",
+  "cota": "2996",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001625",
+  "valor": "350.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 35,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "001120",
+  "cota": "150",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001729",
+  "valor": "300.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 22,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "001120",
+  "cota": "602",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001729",
+  "valor": "300.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 22,
+  "dataProxVenc": "2026-10-15"
+ },
+ {
+  "grupo": "001120",
+  "cota": "1004",
+  "consorciado": "LEAO E RODRIGUS AGROPECUARIA E PARTICPACOES",
+  "contemplacao": "Nao Contemplado",
+  "bem": "001729",
+  "valor": "300.000,00",
+  "situacao": "Normal",
+  "numProxAssembleia": 22,
+  "dataProxVenc": "2026-10-15"
+ }
+];
 
-const $=id=>document.getElementById(id);
-
-auth.onAuthStateChanged(async user=>{
-  if(user){
-    $('loginOverlay').hidden=true;
-    $('userChip').textContent=user.email;
-    $('appRoot').hidden=false;
-    await loadAndRender();
-  }else{
-    $('appRoot').hidden=true;
-    $('appLoading').hidden=true;
-    $('loginOverlay').hidden=false;
-  }
-});
-
-$('loginForm').addEventListener('submit', async ev=>{
-  ev.preventDefault();
-  $('loginErro').textContent='';
-  const b=$('btnEntrar'); b.disabled=true; b.textContent='Entrando…';
-  try{
-    await auth.signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginSenha').value);
-  }catch(e){
-    const m={'auth/invalid-credential':'E-mail ou senha incorretos.','auth/wrong-password':'E-mail ou senha incorretos.','auth/user-not-found':'Usuário não cadastrado.','auth/too-many-requests':'Muitas tentativas — aguarde alguns minutos.','auth/network-request-failed':'Sem conexão com a internet.'};
-    $('loginErro').textContent = m[e.code] || ('Não foi possível entrar ('+(e.code||'erro')+').');
-  }
-  b.disabled=false; b.textContent='Entrar';
-});
-
-$('btnSair').addEventListener('click', ()=>auth.signOut());
-
-let COTAS = [];
-let draws = {};
-
-async function loadAndRender(){
-  $('appLoading').hidden=false;
-  try{
-    const cotasSnap = await db.collection('ademicon_leao_cotas').get();
-    COTAS = cotasSnap.docs.map(d=>d.data());
-    const sorteiosSnap = await db.collection('ademicon_leao_sorteios').get();
-    draws = {};
-    sorteiosSnap.docs.forEach(d=>{ draws[d.id] = d.data().numeros || ['','','','']; });
-  }catch(e){
-    console.error(e);
-    alert('Erro ao carregar dados do painel: '+(e.message||e));
-  }
-  $('appLoading').hidden=true;
-  render();
+const STORAGE_KEY = 'ademicon_leao_sorteios';
+function loadDraws(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; }
 }
-
-async function saveDraw(grupo, numeros){
-  draws[grupo] = numeros;
-  try{
-    await db.collection('ademicon_leao_sorteios').doc(grupo).set({numeros, atualizadoEm: new Date().toISOString()});
-  }catch(e){
-    console.error(e);
-  }
+function saveDraws(draws){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(draws));
 }
+let draws = loadDraws();
 
 function fmtDate(iso){
   if(!iso) return '—';
-  const [y,m,d]=iso.split('-');
+  const [y,m,d] = iso.split('-');
   return d+'/'+m+'/'+y;
 }
-function groupBy(arr,key){
-  const m=new Map();
-  arr.forEach(x=>{ const k=x[key]; if(!m.has(k)) m.set(k,[]); m.get(k).push(x); });
+
+function groupBy(arr, key){
+  const m = new Map();
+  arr.forEach(x=>{
+    const k = x[key];
+    if(!m.has(k)) m.set(k, []);
+    m.get(k).push(x);
+  });
   return m;
 }
 
-const container=()=>$('groups');
+const grouped = groupBy(DATA, 'grupo');
+const groupMeta = new Map();
+for(const [grupo, rows] of grouped){
+  groupMeta.set(grupo, {
+    valor: rows[0].valor,
+    numProxAssembleia: rows[0].numProxAssembleia,
+    dataProxVenc: rows[0].dataProxVenc,
+    consorciados: [...new Set(rows.map(r=>r.consorciado))]
+  });
+}
+
+const container = document.getElementById('groups');
 
 function render(){
-  const grouped = groupBy(COTAS,'grupo');
-  const groupMeta = new Map();
-  for(const [grupo,rows] of grouped){
-    groupMeta.set(grupo,{
-      valor: rows[0].valor,
-      numProxAssembleia: rows[0].numProxAssembleia,
-      dataProxVenc: rows[0].dataProxVenc
-    });
-  }
+  container.innerHTML = '';
+  let totContempladas = 0, totProximas = 0, totCotas = 0;
 
-  const root = container();
-  root.innerHTML='';
-  let totContempladas=0, totProximas=0, totCotas=0;
-  const sortedGroups=[...grouped.keys()].sort();
+  const sortedGroups = [...grouped.keys()].sort();
 
   sortedGroups.forEach(grupo=>{
-    const rows=grouped.get(grupo).slice().sort((a,b)=>Number(a.cota)-Number(b.cota));
-    const meta=groupMeta.get(grupo);
+    const rows = grouped.get(grupo).slice().sort((a,b)=>Number(a.cota)-Number(b.cota));
+    const meta = groupMeta.get(grupo);
     const gd = draws[grupo] || ['','','',''];
 
-    const div=document.createElement('div');
-    div.className='group';
+    const div = document.createElement('div');
+    div.className = 'group';
 
-    const head=document.createElement('div');
-    head.className='group-head';
-    head.innerHTML='<div class="title">Grupo <span class="grupo-num">'+grupo+'</span></div>'+
+    const head = document.createElement('div');
+    head.className = 'group-head';
+    head.innerHTML = '<div class="title">Grupo <span class="grupo-num">'+grupo+'</span></div>'+
       '<div class="meta">Crédito R$ '+meta.valor+' &nbsp;·&nbsp; Próx. assembleia nº '+(meta.numProxAssembleia ?? '—')+' em '+fmtDate(meta.dataProxVenc)+'</div>';
     div.appendChild(head);
 
-    const drawRow=document.createElement('div');
-    drawRow.className='draw-row';
-    let inputsHtml='<label>Sorteio:</label>';
+    const drawRow = document.createElement('div');
+    drawRow.className = 'draw-row';
+    let inputsHtml = '<label>Números sorteados:</label>';
     for(let i=0;i<4;i++){
-      inputsHtml+='<input type="number" inputmode="numeric" class="'+(i===0?'ref':'')+'" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º">';
+      inputsHtml += '<input type="number" inputmode="numeric" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º">';
     }
-    inputsHtml+='<span class="sep">1º = contempla · 2º/3º/4º = reserva</span>';
-    inputsHtml+='<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
-    inputsHtml+='<span class="savehint" data-saved="'+grupo+'"></span>';
-    drawRow.innerHTML=inputsHtml;
+    inputsHtml += '<span class="sep">1º = contempla · 2º/3º/4º = reserva</span>';
+    inputsHtml += '<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
+    drawRow.innerHTML = inputsHtml;
     div.appendChild(drawRow);
 
-    const table=document.createElement('table');
-    table.innerHTML='<thead><tr><th>Cota</th><th>Consorciado</th><th>Status</th></tr></thead>';
-    const tbody=document.createElement('tbody');
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Cota</th><th>Consorciado</th><th>Status</th></tr></thead>';
+    const tbody = document.createElement('tbody');
 
-    const first = (gd[0]!=='' && gd[0]!=null && !isNaN(Number(gd[0]))) ? Number(gd[0]) : null;
+    const nums = gd.map(v=> v==='' || v===null || v===undefined ? null : Number(v)).filter(v=>v!==null && !isNaN(v));
+    const first = nums.length ? nums[0] : null;
 
     rows.forEach(r=>{
       totCotas++;
-      const cotaNum=Number(r.cota);
-      const isContemplada = first!==null && cotaNum===first;
-      const isProxima = !isContemplada && first!==null && Math.abs(cotaNum-first)<=150;
+      const cotaNum = Number(r.cota);
+      const isContemplada = first !== null && cotaNum === first;
+      const isProxima = !isContemplada && first !== null && Math.abs(cotaNum - first) <= 150;
       if(isContemplada) totContempladas++;
       if(isProxima) totProximas++;
 
-      const tr=document.createElement('tr');
-      tr.className = isContemplada?'contemplada':(isProxima?'proxima':'');
+      const tr = document.createElement('tr');
+      tr.className = isContemplada ? 'contemplada' : (isProxima ? 'proxima' : '');
       let statusHtml;
-      if(isContemplada) statusHtml='<span class="badge contemplada">Contemplada</span>';
-      else if(isProxima) statusHtml='<span class="badge proxima">Próxima (Δ '+Math.abs(cotaNum-first)+')</span>';
-      else statusHtml='<span class="badge normal">—</span>';
+      if(isContemplada) statusHtml = '<span class="badge contemplada">Contemplada</span>';
+      else if(isProxima) statusHtml = '<span class="badge proxima">Próxima (Δ '+Math.abs(cotaNum-first)+')</span>';
+      else statusHtml = '<span class="badge normal">—</span>';
 
-      tr.innerHTML='<td class="cota-num">'+r.cota+'</td><td>'+r.consorciado+'</td><td>'+statusHtml+'</td>';
+      tr.innerHTML = '<td class="cota-num">'+r.cota+'</td><td>'+r.consorciado+'</td><td>'+statusHtml+'</td>';
       tbody.appendChild(tr);
     });
 
     table.appendChild(tbody);
     div.appendChild(table);
-    root.appendChild(div);
+    container.appendChild(div);
   });
 
-  $('totGrupos').textContent=sortedGroups.length;
-  $('totCotas').textContent=totCotas;
-  $('totContempladas').textContent=totContempladas;
-  $('totProximas').textContent=totProximas;
+  document.getElementById('totGrupos').textContent = sortedGroups.length;
+  document.getElementById('totCotas').textContent = totCotas;
+  document.getElementById('totContempladas').textContent = totContempladas;
+  document.getElementById('totProximas').textContent = totProximas;
 }
 
-container().addEventListener('input', e=>{
-  if(e.target.tagName==='INPUT'){
-    const grupo=e.target.dataset.grupo;
-    const idx=Number(e.target.dataset.idx);
-    const gd = draws[grupo] ? draws[grupo].slice() : ['','','',''];
-    gd[idx]=e.target.value;
-    saveDraw(grupo, gd);
+container.addEventListener('input', e=>{
+  if(e.target.tagName === 'INPUT'){
+    const grupo = e.target.dataset.grupo;
+    const idx = Number(e.target.dataset.idx);
+    if(!draws[grupo]) draws[grupo] = ['','','',''];
+    draws[grupo][idx] = e.target.value;
+    saveDraws(draws);
     render();
     setTimeout(()=>{
-      const el=document.querySelector('input[data-grupo="'+grupo+'"][data-idx="'+idx+'"]');
-      if(el){ el.focus(); const v=el.value; el.value=''; el.value=v; }
+      const el = document.querySelector('input[data-grupo="'+grupo+'"][data-idx="'+idx+'"]');
+      if(el) el.focus();
     },0);
   }
 });
-container().addEventListener('click', e=>{
+
+container.addEventListener('click', e=>{
   if(e.target.dataset.clear){
-    const grupo=e.target.dataset.clear;
-    saveDraw(grupo, ['','','','']);
+    const grupo = e.target.dataset.clear;
+    delete draws[grupo];
+    saveDraws(draws);
     render();
   }
 });
+
+render();
 </script>
 </body>
 </html>
