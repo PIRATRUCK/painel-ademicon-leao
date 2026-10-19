@@ -1113,8 +1113,17 @@ function saveDraws(draws){
 let draws = loadDraws();
 
 const MIRROR_KEY = 'ademicon_leao_espelhos';
+// Classes informadas pelo Kayque (19/10/2026): grupos com a mesma quantidade de cotas, mesmo resultado de sorteio.
+const CLASSE_1 = ['000680','000690','000720','000740','000750','000830','000940','000950','001120'];
+const CLASSE_2 = ['000640','000710'];
+const DEFAULT_MIRRORS = {};
+CLASSE_1.forEach(g=>{ DEFAULT_MIRRORS[g] = CLASSE_1.filter(x=>x!==g); });
+CLASSE_2.forEach(g=>{ DEFAULT_MIRRORS[g] = CLASSE_2.filter(x=>x!==g); });
+
 function loadMirrors(){
-  try{ return JSON.parse(localStorage.getItem(MIRROR_KEY)) || {}; }catch(e){ return {}; }
+  let saved = {};
+  try{ saved = JSON.parse(localStorage.getItem(MIRROR_KEY)) || {}; }catch(e){ saved = {}; }
+  return Object.assign({}, DEFAULT_MIRRORS, saved);
 }
 function saveMirrors(m){
   localStorage.setItem(MIRROR_KEY, JSON.stringify(m));
