@@ -43,6 +43,11 @@
     font-size:13px;
   }
   .wrap{max-width:1100px;margin:0 auto;padding:20px;}
+  .month-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--card);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:4px;padding:10px 16px;}
+  .month-row label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+  .month-row input[type=month]{background:#000;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:4px;font-size:14px;}
+  .month-row input[type=month]:focus{outline:none;border-color:var(--red);}
+  .month-hint{font-size:11px;color:var(--muted);}
   .summary{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -217,6 +222,12 @@
 </header>
 
 <div class="wrap">
+  <div class="month-row">
+    <label for="mesSeletor">Mês de referência:</label>
+    <input type="month" id="mesSeletor">
+    <span class="month-hint" id="mesHint"></span>
+  </div>
+
   <div class="summary">
     <div class="stat"><div class="num" id="totGrupos">0</div><div class="label">Grupos</div></div>
     <div class="stat"><div class="num" id="totCotas">0</div><div class="label">Cotas ativas</div></div>
@@ -1104,13 +1115,30 @@ const DATA = [
 ];
 
 const STORAGE_KEY = 'ademicon_leao_sorteios';
-function loadDraws(){
-  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; }
+function currentMonthStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 }
-function saveDraws(draws){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(draws));
+function loadAllDraws(){
+  let raw = {};
+  try{ raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ raw = {}; }
+  // Migra formato antigo (sem mes): {grupo:[...]} -> {mes:{grupo:[...]}}
+  const vals = Object.values(raw);
+  const isLegacy = vals.length > 0 && Array.isArray(vals[0]);
+  if(isLegacy){
+    const migrated = {}; migrated[currentMonthStr()] = raw;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+    return migrated;
+  }
+  return raw;
 }
-let draws = loadDraws();
+function saveAllDraws(all){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+let allDraws = loadAllDraws();
+let selectedMonth = currentMonthStr();
+if(!allDraws[selectedMonth]) allDraws[selectedMonth] = {};
+function getDraws(){ return allDraws[selectedMonth]; }
 
 const MIRROR_KEY = 'ademicon_leao_espelhos';
 // Classes informadas pelo Kayque (19/10/2026): grupos com a mesma quantidade de cotas, mesmo resultado de sorteio.
@@ -1168,7 +1196,7 @@ function render(){
   sortedGroups.forEach(grupo=>{
     const rows = grouped.get(grupo).slice().sort((a,b)=>Number(a.cota)-Number(b.cota));
     const meta = groupMeta.get(grupo);
-    const gd = draws[grupo] || ['','','','',''];
+    const gd = getDraws()[grupo] || ['','','','',''];
 
     const div = document.createElement('div');
     div.className = 'group';
@@ -1256,25 +1284,47 @@ container.addEventListener('click', e=>{
     const inputs = document.querySelectorAll('input[data-grupo="'+grupo+'"]');
     const gd = ['','','','',''];
     inputs.forEach(el=>{ gd[Number(el.dataset.idx)] = el.value.replace(/\D/g,''); });
-    draws[grupo] = gd;
+    const monthDraws = getDraws();
+    monthDraws[grupo] = gd;
 
     const mirrorChecks = document.querySelectorAll('input[data-mirror-of="'+grupo+'"]:checked');
     const espelhados = [...mirrorChecks].map(el=>el.value);
     mirrors[grupo] = espelhados;
     saveMirrors(mirrors);
-    espelhados.forEach(g=>{ draws[g] = gd.slice(); });
+    espelhados.forEach(g=>{ monthDraws[g] = gd.slice(); });
 
-    saveDraws(draws);
+    saveAllDraws(allDraws);
     render();
     const hint = document.querySelector('[data-savedmsg="'+grupo+'"]');
     if(hint){ hint.textContent='Salvo'+(espelhados.length?' (+'+espelhados.length+' espelho'+(espelhados.length>1?'s':'')+')':'')+' ✓'; setTimeout(()=>{ if(hint) hint.textContent=''; }, 3000); }
   }
   if(e.target.dataset.clear){
     const grupo = e.target.dataset.clear;
-    delete draws[grupo];
-    saveDraws(draws);
+    delete getDraws()[grupo];
+    saveAllDraws(allDraws);
     render();
   }
+});
+
+function mesLabel(m){
+  const nomes=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const [y,mm]=m.split('-');
+  return nomes[Number(mm)-1]+'/'+y;
+}
+function atualizaMesHint(){
+  const hoje = currentMonthStr();
+  const hint = document.getElementById('mesHint');
+  if(hint) hint.textContent = selectedMonth===hoje ? '(mês atual)' : 'vendo '+mesLabel(selectedMonth)+' — não é o mês atual ('+mesLabel(hoje)+')';
+}
+const mesInput = document.getElementById('mesSeletor');
+mesInput.value = selectedMonth;
+atualizaMesHint();
+mesInput.addEventListener('change', ()=>{
+  if(!mesInput.value) return;
+  selectedMonth = mesInput.value;
+  if(!allDraws[selectedMonth]) allDraws[selectedMonth] = {};
+  atualizaMesHint();
+  render();
 });
 
 render();
