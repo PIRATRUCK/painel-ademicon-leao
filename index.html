@@ -217,12 +217,12 @@
   </div>
 
   <div class="help">
-    <b>Como usar:</b> em cada grupo, digite os 4 números sorteados na assembleia (1º ao 4º). Só o
+    <b>Como usar:</b> em cada grupo, digite os 5 números da extração da Loteria Federal (1º ao 5º, igual sai no resultado oficial). Só o
     <b style="color:var(--red)">1º número</b> contempla (match exato) — o painel marca
     <b style="color:var(--red)">CONTEMPLADA</b> quando uma cota bate com ele, e
     <b style="color:var(--amber)">PRÓXIMA</b> quando a cota está a até 150 números de distância dele.
-    Os números 2º, 3º e 4º ficam só como reserva (não contemplam, apenas registrados).
-    Digite os 4 números e clique em <b>Salvar</b> para conferir — fica guardado neste navegador, mês a mês.
+    Os números 2º a 5º ficam só como reserva (não contemplam, apenas registrados).
+    Digite os 5 números e clique em <b>Salvar</b> para conferir — fica guardado neste navegador, mês a mês.
   </div>
 
   <div id="groups"></div>
@@ -1142,7 +1142,7 @@ function render(){
   sortedGroups.forEach(grupo=>{
     const rows = grouped.get(grupo).slice().sort((a,b)=>Number(a.cota)-Number(b.cota));
     const meta = groupMeta.get(grupo);
-    const gd = draws[grupo] || ['','','',''];
+    const gd = draws[grupo] || ['','','','',''];
 
     const div = document.createElement('div');
     div.className = 'group';
@@ -1155,11 +1155,11 @@ function render(){
 
     const drawRow = document.createElement('div');
     drawRow.className = 'draw-row';
-    let inputsHtml = '<label>Números sorteados:</label>';
-    for(let i=0;i<4;i++){
+    let inputsHtml = '<label>Loteria Federal:</label>';
+    for(let i=0;i<5;i++){
       inputsHtml += '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º">';
     }
-    inputsHtml += '<span class="sep">1º = contempla · 2º/3º/4º = reserva</span>';
+    inputsHtml += '<span class="sep">1º = contempla · 2º a 5º = reserva</span>';
     inputsHtml += '<button class="save-btn" data-save="'+grupo+'">Salvar</button>';
     inputsHtml += '<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
     inputsHtml += '<span class="savehint" data-savedmsg="'+grupo+'"></span>';
@@ -1214,7 +1214,7 @@ container.addEventListener('click', e=>{
   if(e.target.dataset.save){
     const grupo = e.target.dataset.save;
     const inputs = document.querySelectorAll('input[data-grupo="'+grupo+'"]');
-    const gd = ['','','',''];
+    const gd = ['','','','',''];
     inputs.forEach(el=>{ gd[Number(el.dataset.idx)] = el.value.replace(/\D/g,''); });
     draws[grupo] = gd;
     saveDraws(draws);
