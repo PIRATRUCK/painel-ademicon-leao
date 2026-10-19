@@ -45,8 +45,8 @@
   .wrap{max-width:1100px;margin:0 auto;padding:20px;}
   .month-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;background:var(--card);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:4px;padding:10px 16px;}
   .month-row label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-  .month-row input[type=month]{background:#000;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:4px;font-size:14px;}
-  .month-row input[type=month]:focus{outline:none;border-color:var(--red);}
+  .month-row select{background:#000;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:4px;font-size:14px;}
+  .month-row select:focus{outline:none;border-color:var(--red);}
   .month-hint{font-size:11px;color:var(--muted);}
   .summary{
     display:grid;
@@ -224,7 +224,7 @@
 <div class="wrap">
   <div class="month-row">
     <label for="mesSeletor">Mês de referência:</label>
-    <input type="month" id="mesSeletor">
+    <select id="mesSeletor"></select>
     <span class="month-hint" id="mesHint"></span>
   </div>
 
@@ -1316,7 +1316,25 @@ function atualizaMesHint(){
   const hint = document.getElementById('mesHint');
   if(hint) hint.textContent = selectedMonth===hoje ? '(mês atual)' : 'vendo '+mesLabel(selectedMonth)+' — não é o mês atual ('+mesLabel(hoje)+')';
 }
+function addMonths(mesStr, delta){
+  const [y,m] = mesStr.split('-').map(Number);
+  const d = new Date(y, m-1+delta, 1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function montaOpcoesMes(){
+  const hoje = currentMonthStr();
+  const meses = new Set();
+  for(let i=-6;i<=6;i++) meses.add(addMonths(hoje, i));
+  Object.keys(allDraws).forEach(m=>meses.add(m));
+  return [...meses].sort();
+}
 const mesInput = document.getElementById('mesSeletor');
+montaOpcoesMes().forEach(m=>{
+  const opt = document.createElement('option');
+  opt.value = m;
+  opt.textContent = mesLabel(m);
+  mesInput.appendChild(opt);
+});
 mesInput.value = selectedMonth;
 atualizaMesHint();
 mesInput.addEventListener('change', ()=>{
