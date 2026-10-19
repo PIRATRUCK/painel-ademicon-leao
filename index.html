@@ -12,6 +12,8 @@
     --red:#d1162b;
     --red-dark:#8c0f1e;
     --amber:#e8a33d;
+    --green:#2ecc71;
+    --blue:#3b82f6;
     --text:#f2f2f2;
     --muted:#9a9a9a;
     --border:#2b2b2b;
@@ -165,8 +167,10 @@
     font-weight:600;
   }
   td{padding:9px 16px;border-top:1px solid var(--border);}
-  tr.contemplada{background:rgba(209,22,43,0.18);}
-  tr.contemplada td:first-child{border-left:3px solid var(--red);}
+  tr.contemplada-1{background:rgba(46,204,113,0.18);}
+  tr.contemplada-1 td:first-child{border-left:3px solid var(--green);}
+  tr.contemplada-outro{background:rgba(59,130,246,0.18);}
+  tr.contemplada-outro td:first-child{border-left:3px solid var(--blue);}
   tr.proxima{background:rgba(232,163,61,0.10);}
   tr.proxima td:first-child{border-left:3px solid var(--amber);}
   .badge{
@@ -177,7 +181,8 @@
     font-weight:700;
     text-transform:uppercase;
   }
-  .badge.contemplada{background:var(--red);color:#fff;}
+  .badge.contemplada-1{background:var(--green);color:#042a12;}
+  .badge.contemplada-outro{background:var(--blue);color:#fff;}
   .badge.proxima{background:var(--amber);color:#1a1200;}
   .badge.normal{background:#2b2b2b;color:var(--muted);}
   .cota-num{font-weight:700;font-family:monospace;font-size:14px;}
@@ -236,12 +241,12 @@
   </div>
 
   <div class="help">
-    <b>Como usar:</b> em cada grupo, digite os 5 números da extração da Loteria Federal (1º ao 5º, igual sai no resultado oficial). Só o
-    <b style="color:var(--red)">1º número</b> contempla (match exato) — o painel marca
-    <b style="color:var(--red)">CONTEMPLADA</b> quando uma cota bate com ele, e
-    <b style="color:var(--amber)">PRÓXIMA</b> quando a cota está a até 150 números de distância dele.
-    Os números 2º a 5º ficam só como reserva (não contemplam, apenas registrados).
-    Digite os 5 números e clique em <b>Salvar</b> para conferir — fica guardado neste navegador, mês a mês.
+    <b>Como usar:</b> em cada grupo, digite os 5 números da extração da Loteria Federal (1º ao 5º, igual sai no resultado oficial). Qualquer cota que bater com um desses números foi
+    <b>contemplada no sorteio</b> — o painel marca
+    <b style="color:var(--green)">VERDE</b> quando bate com o 1º número, e
+    <b style="color:var(--blue)">AZUL</b> quando bate com um dos outros 4 (2º a 5º).
+    <b style="color:var(--amber)">PRÓXIMA</b> (âmbar) é só quando a cota está a até 150 números de distância do 1º número, sem ter batido com nenhum.
+    Digite os 5 números e clique em <b>Salvar</b> para conferir — fica salvo, mês a mês.
   </div>
 
   <div id="groups"></div>
@@ -1240,10 +1245,10 @@ function render(){
       inputsHtml += '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º"'+(isLocked?' disabled':'')+'>';
     }
     if(isLocked){
-      inputsHtml += '<span class="sep">salvo — 1º contempla, 2º a 5º reserva</span>';
+      inputsHtml += '<span class="sep">salvo — verde = bateu com 1º, azul = bateu com 2º a 5º</span>';
       inputsHtml += '<button class="save-btn" data-edit="'+grupo+'">Editar</button>';
     }else{
-      inputsHtml += '<span class="sep">1º = contempla · 2º a 5º = reserva</span>';
+      inputsHtml += '<span class="sep">verde = bate com 1º · azul = bate com 2º a 5º</span>';
       inputsHtml += '<button class="save-btn" data-save="'+grupo+'">Salvar</button>';
       inputsHtml += '<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
     }
@@ -1268,19 +1273,23 @@ function render(){
 
     const nums = gd.map(v=> v==='' || v===null || v===undefined ? null : Number(v)).filter(v=>v!==null && !isNaN(v));
     const first = nums.length ? nums[0] : null;
+    const outros = nums.slice(1);
 
     rows.forEach(r=>{
       totCotas++;
       const cotaNum = Number(r.cota);
-      const isContemplada = first !== null && cotaNum === first;
+      const isPrimeiro = first !== null && cotaNum === first;
+      const isOutro = !isPrimeiro && outros.includes(cotaNum);
+      const isContemplada = isPrimeiro || isOutro;
       const isProxima = !isContemplada && first !== null && Math.abs(cotaNum - first) <= 150;
       if(isContemplada) totContempladas++;
       if(isProxima) totProximas++;
 
       const tr = document.createElement('tr');
-      tr.className = isContemplada ? 'contemplada' : (isProxima ? 'proxima' : '');
+      tr.className = isPrimeiro ? 'contemplada-1' : (isOutro ? 'contemplada-outro' : (isProxima ? 'proxima' : ''));
       let statusHtml;
-      if(isContemplada) statusHtml = '<span class="badge contemplada">Contemplada</span>';
+      if(isPrimeiro) statusHtml = '<span class="badge contemplada-1">Contemplada (1º)</span>';
+      else if(isOutro) statusHtml = '<span class="badge contemplada-outro">Contemplada (reserva)</span>';
       else if(isProxima) statusHtml = '<span class="badge proxima">Próxima (Δ '+Math.abs(cotaNum-first)+')</span>';
       else statusHtml = '<span class="badge normal">—</span>';
 
