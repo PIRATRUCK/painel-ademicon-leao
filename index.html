@@ -1079,7 +1079,7 @@ function render(){
     drawRow.className = 'draw-row';
     let inputsHtml = '<label>Números sorteados:</label>';
     for(let i=0;i<4;i++){
-      inputsHtml += '<input type="number" inputmode="numeric" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º">';
+      inputsHtml += '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º">';
     }
     inputsHtml += '<span class="sep">1º = contempla · 2º/3º/4º = reserva</span>';
     inputsHtml += '<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
@@ -1127,8 +1127,10 @@ container.addEventListener('input', e=>{
   if(e.target.tagName === 'INPUT'){
     const grupo = e.target.dataset.grupo;
     const idx = Number(e.target.dataset.idx);
+    const clean = e.target.value.replace(/\D/g,'');
+    e.target.value = clean;
     if(!draws[grupo]) draws[grupo] = ['','','',''];
-    draws[grupo][idx] = e.target.value;
+    draws[grupo][idx] = clean;
     saveDraws(draws);
     render();
     setTimeout(()=>{
