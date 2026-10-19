@@ -115,17 +115,31 @@
   }
   .draw-row input:focus{outline:none;border-color:var(--red);}
   .draw-row .sep{color:var(--muted);font-size:11px;margin-left:8px;}
-  .draw-row .clear-btn{
+  .draw-row .save-btn{
     margin-left:auto;
+    background:var(--red);
+    border:1px solid var(--red);
+    color:#fff;
+    padding:7px 16px;
+    border-radius:4px;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    cursor:pointer;
+  }
+  .draw-row .save-btn:hover{background:#a80f22;}
+  .draw-row .clear-btn{
     background:none;
     border:1px solid var(--border);
     color:var(--muted);
-    padding:6px 12px;
+    padding:7px 12px;
     border-radius:4px;
     font-size:12px;
     cursor:pointer;
   }
   .draw-row .clear-btn:hover{border-color:var(--red);color:var(--red);}
+  .draw-row .savehint{color:var(--amber);font-size:11px;font-weight:700;min-width:50px;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
   th{
     text-align:left;
@@ -180,7 +194,7 @@
     <b style="color:var(--red)">CONTEMPLADA</b> quando uma cota bate com ele, e
     <b style="color:var(--amber)">PRÓXIMA</b> quando a cota está a até 150 números de distância dele.
     Os números 2º, 3º e 4º ficam só como reserva (não contemplam, apenas registrados).
-    Os números digitados ficam salvos automaticamente neste navegador, mês a mês.
+    Digite os 4 números e clique em <b>Salvar</b> para conferir — fica guardado neste navegador, mês a mês.
   </div>
 
   <div id="groups"></div>
@@ -1082,7 +1096,9 @@ function render(){
       inputsHtml += '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" data-grupo="'+grupo+'" data-idx="'+i+'" value="'+(gd[i]||'')+'" placeholder="'+(i+1)+'º">';
     }
     inputsHtml += '<span class="sep">1º = contempla · 2º/3º/4º = reserva</span>';
+    inputsHtml += '<button class="save-btn" data-save="'+grupo+'">Salvar</button>';
     inputsHtml += '<button class="clear-btn" data-clear="'+grupo+'">Limpar</button>';
+    inputsHtml += '<span class="savehint" data-savedmsg="'+grupo+'"></span>';
     drawRow.innerHTML = inputsHtml;
     div.appendChild(drawRow);
 
@@ -1125,22 +1141,23 @@ function render(){
 
 container.addEventListener('input', e=>{
   if(e.target.tagName === 'INPUT'){
-    const grupo = e.target.dataset.grupo;
-    const idx = Number(e.target.dataset.idx);
     const clean = e.target.value.replace(/\D/g,'');
-    e.target.value = clean;
-    if(!draws[grupo]) draws[grupo] = ['','','',''];
-    draws[grupo][idx] = clean;
-    saveDraws(draws);
-    render();
-    setTimeout(()=>{
-      const el = document.querySelector('input[data-grupo="'+grupo+'"][data-idx="'+idx+'"]');
-      if(el) el.focus();
-    },0);
+    if(e.target.value !== clean) e.target.value = clean;
   }
 });
 
 container.addEventListener('click', e=>{
+  if(e.target.dataset.save){
+    const grupo = e.target.dataset.save;
+    const inputs = document.querySelectorAll('input[data-grupo="'+grupo+'"]');
+    const gd = ['','','',''];
+    inputs.forEach(el=>{ gd[Number(el.dataset.idx)] = el.value.replace(/\D/g,''); });
+    draws[grupo] = gd;
+    saveDraws(draws);
+    render();
+    const hint = document.querySelector('[data-savedmsg="'+grupo+'"]');
+    if(hint){ hint.textContent='Salvo ✓'; setTimeout(()=>{ if(hint) hint.textContent=''; }, 2500); }
+  }
   if(e.target.dataset.clear){
     const grupo = e.target.dataset.clear;
     delete draws[grupo];
